@@ -29,7 +29,6 @@ def print_acc(trainAcc, testAcc, dp, c1, c2,xAxis,file_name):
 def des_tree(x_train, x_test, y_train, y_test, depth, criterion_name ):
     #making tree
     tr = tree.DecisionTreeClassifier(criterion=criterion_name, max_depth=depth)
-        
     
     #Training tree
     tr = tr.fit(x_train, y_train)
@@ -39,8 +38,6 @@ def des_tree(x_train, x_test, y_train, y_test, depth, criterion_name ):
     
     return metrics.accuracy_score(y_test,  y_predTest), metrics.accuracy_score(y_train, y_predTrain)
     
-    
-
 
 def k_neighbour(x_train, x_test, y_train, y_test, k, algo):
      
@@ -57,41 +54,36 @@ def k_neighbour(x_train, x_test, y_train, y_test, k, algo):
     return (accuracy_score(y_test, y_predTest),accuracy_score(y_train, y_predTrain))
 
 
-
-
-
-def main():
-    
+def split_data(file):
 
     colNames = ['Sample Code #', 'Clump Thickness', 'Uniformity of Cell Size',
                 'Uniformity of Cell Shape', 'Marginal Adhesion', 
                 'Single Epithelial Cell Size', 'Bare Nuclei', 'Bland Chromatin',
                 'Normal Nucleoli', 'Mitoses', 'Class - 2=Benign 4=Malignant']
-    
-    data = pd.read_csv('breast-cancer-wisconsin2.data', header=None, names=colNames)
-    
-    #Printing instsnces of each attribute in the data set.
-    data.info()
-    print()
-    
-    #Splitting data 80 20
-    train, test = train_test_split(data, test_size=0.2,random_state=2142)
-    
-    
+    file = pd.read_csv(file, header=None)
+    file.columns = colNames
+
+    train, test = train_test_split(file, test_size=0.2, random_state=2142)
+
     features = ['Clump Thickness', 'Uniformity of Cell Size',
                 'Uniformity of Cell Shape', 'Marginal Adhesion', 
                 'Single Epithelial Cell Size', 'Bland Chromatin',
                 'Normal Nucleoli', 'Mitoses']
+
+    train.columns = colNames
+    y_train = train['Class - 2=Benign 4=Malignant']
+    x_train = train[features]
+
+    test.columns = colNames
+    y_test = test['Class - 2=Benign 4=Malignant']
+    x_test = test[features]
     
-    #Separating attributes
-    x = data[features]
-    y = data['Class - 2=Benign 4=Malignant']
+    return x_train, x_test, y_train, y_test
+
+
+def main():
     
-    
-    #Spliting test and train 
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size= 0.2)
-  
-    
+    x_train, x_test, y_train, y_test = split_data('breast-cancer-wisconsin2.data')
     
     #
     #Trying decision tree with various depths from 2 to 25 with criterion entropy
@@ -108,7 +100,6 @@ def main():
        
     #Printing graph
     print_acc(trainAcc, testAcc, dp, 'ko-','cv--', 'Depth', 'des_tree_entropy')
-
 
 
     #
