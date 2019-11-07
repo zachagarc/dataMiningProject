@@ -22,7 +22,7 @@ def print_acc(trainAcc, testAcc, dp, c1, c2,xAxis,file_name):
     plt.xlabel(xAxis)
     plt.title(file_name)
     plt.ylabel('Accuracy')
-    plt.savefig(file_name + '.jpg')
+    plt.savefig(file_name + '.png')
     plt.show()
 
 
@@ -94,8 +94,8 @@ def main():
     print('Testing decision tree with Entropy as impurity measure')
     for i in dp:
        temp, temp2 = des_tree(x_train, x_test, y_train, y_test, i, 'entropy')
-       trainAcc.append(temp)
-       testAcc.append(temp2)
+       trainAcc.append(temp2)
+       testAcc.append(temp)
        
        
     #Printing graph
@@ -111,8 +111,8 @@ def main():
     print('Testing desicion tree with Gini as impurity measure')
     for i in dp:
        temp, temp2 = des_tree(x_train, x_test, y_train, y_test, i, 'gini')
-       trainAcc.append(temp)
-       testAcc.append(temp2)
+       trainAcc.append(temp2)
+       testAcc.append(temp)
     
     #Printing graph
     print_acc(trainAcc, testAcc, dp, 'ko-','cv--', 'Depth', 'des_tree_gini')
@@ -132,9 +132,9 @@ def main():
         testAcc  = []
         print('Using', j, 'distance metric.')
         for i in dp:
-            temp, temp2 = k_neighbour(x_train, x_test, y_train, y_test, i, j)
-            trainAcc.append(temp)
-            testAcc.append(temp2)
+            test, train = k_neighbour(x_train, x_test, y_train, y_test, i, j)
+            trainAcc.append(train)
+            testAcc.append(test)
         print()
         #Printing graph
         print_acc(trainAcc, testAcc, dp, colors[count],colors[5 - count], 'Number of neighbors', 'KNN_' + j)
