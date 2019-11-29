@@ -1,9 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 
-from sklearn.ensemble import IsolationForest
 from sklearn.model_selection import train_test_split
 from sklearn import metrics
 from sklearn import tree
@@ -11,14 +9,6 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score
 from scipy.stats import zscore
 
-
-def outliers(x_train, x_test, y_train, y_test):
-    clf = IsolationForest(n_estimators=100, max_samples="auto")
-    clf.fit(x_train)
-    pred = clf.predict(x_train)
-    outliers_values = x_train[pred == -1]
-    
-   
     
 def print_acc(trainAcc, testAcc, dp, c1, c2,xAxis,file_name):
     
@@ -90,13 +80,15 @@ def split_data(file):
     print(file.info(), '\n')
     
     # Removing outliers
+    print(file.shape, 'Before')
     z=np.abs(zscore(file))
-    outlier_row3,outlier_col3=np.where(z>=3)
+    outlier_row3,outlier_col3=np.where(z>=3) 
     outlier_row_3,outlier_col_3=np.where(z<=-3)
-    # print(outlier_row_3) ## No attributes are outliers with zscore <=-3
     dataset=file.drop(file.index[outlier_row3])
+    dataset=file.drop(file.index[outlier_row_3])
     file=dataset.reset_index(drop=True)
-    
+    print(file.shape, 'After')
+    print(file.isnull().sum())
     
     # Splitting data
     train, test = train_test_split(file,test_size=0.2, random_state=2142)
@@ -172,8 +164,6 @@ def main():
         #Printing graph
         print_acc(trainAcc, testAcc, dp, colors[count],colors[5 - count], 'Number of neighbors', 'KNN_' + j)
         count += 1
-
-    outliers(x_train, x_test, y_train, y_test)
 
 
 if __name__ == '__main__':
