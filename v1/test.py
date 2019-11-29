@@ -9,6 +9,8 @@ from sklearn import metrics
 from sklearn import tree
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score
+from scipy.stats import zscore
+
 
 def outliers(x_train, x_test, y_train, y_test):
     clf = IsolationForest(n_estimators=100, max_samples="auto")
@@ -87,8 +89,17 @@ def split_data(file):
     file['BareNuclei'] = file['BareNuclei'].astype(int)
     print(file.info(), '\n')
     
+    # Removing outliers
+    z=np.abs(zscore(file))
+    outlier_row3,outlier_col3=np.where(z>=3)
+    outlier_row_3,outlier_col_3=np.where(z<=-3)
+    # print(outlier_row_3) ## No attributes are outliers with zscore <=-3
+    dataset=file.drop(file.index[outlier_row3])
+    file=dataset.reset_index(drop=True)
+    
+    
     # Splitting data
-    train, test = train_test_split(file, test_size=0.2, random_state=2142)
+    train, test = train_test_split(file,test_size=0.2, random_state=2142)
 
     # Excluding Sample Code and Class from features list
     features = colNames[1:10]
