@@ -1,15 +1,23 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
-
+from sklearn.ensemble import IsolationForest
 from sklearn.model_selection import train_test_split
 from sklearn import metrics
 from sklearn import tree
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score
 
-
+def outliers(x_train, x_test, y_train, y_test):
+    clf = IsolationForest(n_estimators=100, max_samples="auto")
+    clf.fit(x_train)
+    pred = clf.predict(x_train)
+    outliers_values = x_train[pred == -1]
+    
+   
+    
 def print_acc(trainAcc, testAcc, dp, c1, c2,xAxis,file_name):
     
     #Converting lists to numpy arrays
@@ -55,21 +63,36 @@ def k_neighbour(x_train, x_test, y_train, y_test, k, algo):
 
 
 def split_data(file):
-
+    
+    # Opening csv
     colNames = ['Sample Code #', 'Clump Thickness', 'Uniformity of Cell Size',
                 'Uniformity of Cell Shape', 'Marginal Adhesion', 
-                'Single Epithelial Cell Size', 'Bare Nuclei', 'Bland Chromatin',
+                'Single Epithelial Cell Size', 'BareNuclei', 'Bland Chromatin',
                 'Normal Nucleoli', 'Mitoses', 'Class - 2=Benign 4=Malignant']
     file = pd.read_csv(file, header=None)
     file.columns = colNames
-
+    
+    # Getting info on dataset
+    file = file.replace('?',np.NaN)
+    print(file.info(), '\n')
+    print('Finding number of null values\n', file.isnull().sum())
+    
+    # Q1A
+    # Removing rows with null values
+    file = file.dropna(axis=0, how='any')
+    print('\nAll null values removed')
+    print('Shape of file', file.shape, '\n')
+    
+    #Changeing type of BareNucli from Obj to int
+    file['BareNuclei'] = file['BareNuclei'].astype(int)
+    print(file.info(), '\n')
+    
+    # Splitting data
     train, test = train_test_split(file, test_size=0.2, random_state=2142)
 
-    features = ['Clump Thickness', 'Uniformity of Cell Size',
-                'Uniformity of Cell Shape', 'Marginal Adhesion', 
-                'Single Epithelial Cell Size', 'Bland Chromatin',
-                'Normal Nucleoli', 'Mitoses']
-
+    # Excluding Sample Code and Class from features list
+    features = colNames[1:10]
+    
     train.columns = colNames
     y_train = train['Class - 2=Benign 4=Malignant']
     x_train = train[features]
@@ -79,7 +102,6 @@ def split_data(file):
     x_test = test[features]
     
     return x_train, x_test, y_train, y_test
-
 
 def main():
     
@@ -140,7 +162,7 @@ def main():
         print_acc(trainAcc, testAcc, dp, colors[count],colors[5 - count], 'Number of neighbors', 'KNN_' + j)
         count += 1
 
-
+    outliers(x_train, x_test, y_train, y_test)
 
 
 if __name__ == '__main__':
