@@ -7,7 +7,6 @@ from sklearn import metrics
 from sklearn import tree
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score
-from scipy.stats import zscore
 from sklearn.model_selection import cross_val_score
 
 
@@ -23,7 +22,7 @@ def print_acc(trainAcc, testAcc, dp, c1, c2,xAxis,file_name):
     plt.xlabel(xAxis)
     plt.title(file_name)
     plt.ylabel('Accuracy')
-    plt.savefig(file_name + '.png')
+    plt.savefig(file_name + 'IQR.png')
     plt.show()
 
 
@@ -79,20 +78,15 @@ def split_data(file):
     print('\nAll null values removed')
     print('Shape of file', file.shape, '\n')
     
-    #Changeing type of BareNucli from Obj to int
+    # Changeing type of BareNucli from Obj to int
     file['BareNuclei'] = file['BareNuclei'].astype(int)
     print(file.info(), '\n')
-    
-    # Removing outliers
-    print(file.shape, 'Before')
-    z=np.abs(zscore(file))
-    outlier_row3,outlier_col3=np.where(z>=3) 
-    outlier_row_3,outlier_col_3=np.where(z<=-3)
-    dataset=file.drop(file.index[outlier_row3])
-    dataset=file.drop(file.index[outlier_row_3])
-    file=dataset.reset_index(drop=True)
-    print(file.shape, 'After')
-    print(file.isnull().sum())
+  
+    Q1 = file.quantile(0.25)
+    Q3 = file.quantile(0.75)
+    IQR = Q3 - Q1
+    file = file[~((file < (Q1 - 1.5 * IQR)) |(file > (Q3 + 1.5 * IQR))).any(axis=1)]
+
     
     # Splitting data
     train, test = train_test_split(file,test_size=0.2, random_state=2142)
@@ -195,9 +189,8 @@ def main():
     ax = fig.add_subplot(111)
     plt.boxplot(scores)
     ax.set_xticklabels(names)
-    plt.savefig('AlgorithmComparison.png')
+    plt.savefig('AlgorithmComparisonIQR.png')
     plt.show()
-
 if __name__ == '__main__':
     main()
 

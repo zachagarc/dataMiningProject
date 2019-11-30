@@ -112,7 +112,6 @@ print('10 fold cross validated recall score for SVM classifier: ', CVScoreSVC)
 from sklearn.naive_bayes import GaussianNB
 from sklearn.model_selection import cross_val_score
 
-# We use cross_val_score since we don't have parameters to change that will affect the scoring
 nbc = GaussianNB()
 CVScoreNBC = cross_val_score(nbc, X, y, cv = 10, scoring = 'recall_macro').mean()
 
